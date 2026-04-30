@@ -4,97 +4,133 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 222 47% 11%;
+    --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    /* Channel values — used by Tailwind for opacity modifier support */
+    --accent-ch: 0.55 0.16 258;
+    --surface-2-ch: 0.975 0.005 250;
+    --danger-ch: 0.58 0.19 25;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    /* Surfaces */
+    --bg: oklch(0.985 0.003 250);
+    --surface: oklch(1 0 0);
+    --surface-2: oklch(var(--surface-2-ch) / 1);
+    --surface-3: oklch(0.955 0.006 250);
 
-    --primary: 220 70% 50%;
-    --primary-foreground: 0 0% 100%;
+    /* Borders */
+    --border-strong: oklch(0.86 0.01 250);
 
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 222 47% 11%;
+    /* Text */
+    --text: oklch(0.22 0.02 255);
+    --text-subtle: oklch(0.62 0.012 255);
 
-    --muted: 220 15% 95%;
-    --muted-foreground: 220 10% 46%;
+    /* Accent (indigo) */
+    --accent-hover: oklch(0.5 0.17 258);
+    --accent-soft: oklch(0.96 0.025 258);
+    --accent-fg: oklch(0.99 0 0);
 
-    --accent: 220 15% 92%;
-    --accent-foreground: 222 47% 11%;
+    /* Status */
+    --danger: oklch(0.58 0.19 25);
+    --success: oklch(0.62 0.15 155);
+    --warn: oklch(0.72 0.16 75);
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    /* Energy types */
+    --energy-physical: oklch(0.68 0.14 45);
+    --energy-mental: oklch(0.62 0.13 250);
+    --energy-emotional: oklch(0.65 0.16 5);
+    --energy-spiritual: oklch(0.6 0.14 305);
+    --energy-recovery: oklch(0.68 0.12 155);
+    --energy-physical-soft: oklch(0.96 0.04 45);
+    --energy-mental-soft: oklch(0.96 0.035 250);
+    --energy-emotional-soft: oklch(0.96 0.04 5);
+    --energy-spiritual-soft: oklch(0.96 0.035 305);
+    --energy-recovery-soft: oklch(0.96 0.035 155);
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 220 70% 50%;
+    /* Radii */
+    --r-xs: 4px;
+    --r-sm: 6px;
+    --r-md: 8px;
+    --r-lg: 12px;
+    --r-xl: 16px;
 
-    --radius: 0.5rem;
+    /* Shadows */
+    --shadow-sm: 0 1px 2px oklch(0.2 0.02 255 / 0.04);
+    --shadow-md: 0 2px 6px oklch(0.2 0.02 255 / 0.06), 0 1px 2px oklch(0.2 0.02 255 / 0.04);
+    --shadow-lg: 0 8px 24px oklch(0.2 0.02 255 / 0.08), 0 2px 6px oklch(0.2 0.02 255 / 0.05);
 
-    /* Energy type colors */
-    --energy-physical: 25 95% 53%;
-    --energy-mental: 220 70% 50%;
-    --energy-emotional: 340 75% 55%;
-    --energy-spiritual: 270 60% 55%;
-    --energy-recovery: 150 60% 45%;
+    /* shadcn tokens — full color values */
+    --background: var(--bg);
+    --foreground: var(--text);
+    --card: var(--surface);
+    --card-foreground: var(--text);
+    --popover: var(--surface);
+    --popover-foreground: var(--text);
+    --primary: oklch(var(--accent-ch) / 1);
+    --primary-foreground: var(--accent-fg);
+    --secondary: var(--surface-2);
+    --secondary-foreground: var(--text);
+    --muted: oklch(var(--surface-2-ch) / 1);
+    --muted-foreground: oklch(0.5 0.015 255);
+    --accent: var(--surface-3);
+    --accent-foreground: var(--text);
+    --destructive: oklch(var(--danger-ch) / 1);
+    --destructive-foreground: var(--accent-fg);
+    --border: oklch(0.92 0.008 250);
+    --input: oklch(0.92 0.008 250);
+    --ring: oklch(var(--accent-ch) / 1);
+    --radius: var(--r-md);
 
     /* Sidebar */
-    --sidebar-background: 220 20% 98%;
-    --sidebar-foreground: 220 10% 30%;
-    --sidebar-primary: 220 70% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 94%;
-    --sidebar-accent-foreground: 220 10% 20%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 220 70% 50%;
+    --sidebar-background: var(--surface-2);
+    --sidebar-foreground: var(--text);
+    --sidebar-primary: oklch(var(--accent-ch) / 1);
+    --sidebar-primary-foreground: var(--accent-fg);
+    --sidebar-accent: var(--surface-3);
+    --sidebar-accent-foreground: var(--text);
+    --sidebar-border: oklch(0.92 0.008 250);
+    --sidebar-ring: oklch(var(--accent-ch) / 1);
+    --sidebar-width: 232px;
+    --sidebar-width-icon: 56px;
   }
 
   .dark {
-    --background: 222 47% 6%;
-    --foreground: 220 15% 92%;
+    --accent-ch: 0.62 0.16 258;
+    --surface-2-ch: 0.2 0.015 255;
+    --danger-ch: 0.45 0.19 25;
 
-    --card: 222 47% 8%;
-    --card-foreground: 220 15% 92%;
+    --bg: oklch(0.13 0.02 255);
+    --surface: oklch(0.15 0.02 255);
+    --surface-2: oklch(var(--surface-2-ch) / 1);
+    --surface-3: oklch(0.18 0.015 255);
 
-    --popover: 222 47% 8%;
-    --popover-foreground: 220 15% 92%;
-
-    --primary: 220 70% 55%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 15% 15%;
-    --secondary-foreground: 220 15% 92%;
-
-    --muted: 220 15% 15%;
-    --muted-foreground: 220 10% 55%;
-
-    --accent: 220 15% 15%;
-    --accent-foreground: 220 15% 92%;
-
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 220 70% 55%;
-
-    --energy-physical: 25 95% 60%;
-    --energy-mental: 220 70% 60%;
-    --energy-emotional: 340 75% 60%;
-    --energy-spiritual: 270 60% 60%;
-    --energy-recovery: 150 60% 50%;
-
-    --sidebar-background: 222 47% 7%;
-    --sidebar-foreground: 220 15% 80%;
-    --sidebar-primary: 220 70% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 12%;
-    --sidebar-accent-foreground: 220 15% 90%;
-    --sidebar-border: 220 15% 15%;
-    --sidebar-ring: 220 70% 55%;
+    --background: var(--bg);
+    --foreground: oklch(0.92 0.01 255);
+    --card: var(--surface);
+    --card-foreground: oklch(0.92 0.01 255);
+    --popover: var(--surface);
+    --popover-foreground: oklch(0.92 0.01 255);
+    --primary: oklch(var(--accent-ch) / 1);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: var(--surface-2);
+    --secondary-foreground: oklch(0.92 0.01 255);
+    --muted: oklch(var(--surface-2-ch) / 1);
+    --muted-foreground: oklch(0.55 0.015 255);
+    --accent: var(--surface-3);
+    --accent-foreground: oklch(0.92 0.01 255);
+    --destructive: oklch(var(--danger-ch) / 1);
+    --destructive-foreground: oklch(0.99 0 0);
+    --border: oklch(0.25 0.015 255);
+    --input: oklch(0.25 0.015 255);
+    --ring: oklch(var(--accent-ch) / 1);
+    --sidebar-background: oklch(0.14 0.02 255);
+    --sidebar-foreground: oklch(0.8 0.01 255);
+    --sidebar-primary: oklch(var(--accent-ch) / 1);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: var(--surface-3);
+    --sidebar-accent-foreground: oklch(0.9 0.01 255);
+    --sidebar-border: oklch(0.22 0.015 255);
+    --sidebar-ring: oklch(var(--accent-ch) / 1);
   }
 }
 
@@ -104,5 +140,74 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
+}
+
+/* Energy badge — dot-pill style */
+.e-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px 2px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.e-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.e-physical { background: var(--energy-physical-soft); color: oklch(0.45 0.14 45); }
+.e-physical .dot { background: var(--energy-physical); }
+.e-mental { background: var(--energy-mental-soft); color: oklch(0.42 0.13 250); }
+.e-mental .dot { background: var(--energy-mental); }
+.e-emotional { background: var(--energy-emotional-soft); color: oklch(0.45 0.16 5); }
+.e-emotional .dot { background: var(--energy-emotional); }
+.e-spiritual { background: var(--energy-spiritual-soft); color: oklch(0.4 0.14 305); }
+.e-spiritual .dot { background: var(--energy-spiritual); }
+.e-recovery { background: var(--energy-recovery-soft); color: oklch(0.42 0.12 155); }
+.e-recovery .dot { background: var(--energy-recovery); }
+
+/* Sidebar active nav item — raised surface + left accent bar */
+.nav-active-item {
+  position: relative !important;
+  background-color: var(--surface) !important;
+  box-shadow: var(--shadow-sm) !important;
+  color: var(--text) !important;
+  font-weight: 500 !important;
+}
+.nav-active-item::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--primary);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Energy timeline strip (Planner) */
+.energy-strip {
+  display: flex;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  height: 30px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: oklch(1 0 0 / 0.9);
+}
+.energy-strip-seg {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-weight: 500;
 }

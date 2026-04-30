@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -29,40 +28,123 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Flow Planning OS</CardTitle>
-          <CardDescription>{isSignUp ? "Создать аккаунт" : "Войти в систему"}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "var(--bg)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+        fontFamily: "var(--font-sans)",
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: 400 }}>
+        {/* Logo + brand */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 32 }}>
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 14,
+              background: "linear-gradient(135deg, var(--primary), oklch(0.62 0.18 280))",
+              display: "grid",
+              placeItems: "center",
+              color: "white",
+              fontWeight: 700,
+              fontSize: 22,
+              boxShadow: "0 4px 12px oklch(0.55 0.16 258 / 0.25)",
+              marginBottom: 14,
+            }}
+          >
+            F
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.015em", marginBottom: 4 }}>Flow OS</div>
+          <div style={{ fontSize: 13.5, color: "var(--text-subtle)" }}>
+            {isSignUp ? "Создать аккаунт" : "Войти в систему"}
+          </div>
+        </div>
+
+        {/* Card */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--r-xl)",
+            boxShadow: "var(--shadow-md)",
+            padding: "28px 28px 24px",
+          }}
+        >
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {isSignUp && (
-              <div className="space-y-1">
-                <Label htmlFor="name">Имя</Label>
-                <Input id="name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Ваше имя" />
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <Label htmlFor="name" style={{ fontSize: 13, fontWeight: 500 }}>Имя</Label>
+                <Input
+                  id="name"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Ваше имя"
+                  style={{ height: 38 }}
+                />
               </div>
             )}
-            <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <Label htmlFor="email" style={{ fontSize: 13, fontWeight: 500 }}>Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="you@example.com"
+                style={{ height: 38 }}
+              />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="password">Пароль</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <Label htmlFor="password" style={{ fontSize: 13, fontWeight: 500 }}>Пароль</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                placeholder="Минимум 6 символов"
+                style={{ height: 38 }}
+              />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "..." : isSignUp ? "Зарегистрироваться" : "Войти"}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+              style={{ height: 40, fontSize: 14, fontWeight: 500 }}
+            >
+              {loading ? "Загрузка…" : isSignUp ? "Зарегистрироваться" : "Войти"}
             </Button>
           </form>
-          <button
-            className="w-full text-center text-sm text-muted-foreground mt-4 hover:underline"
-            onClick={() => setIsSignUp(!isSignUp)}
-          >
-            {isSignUp ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться"}
-          </button>
-        </CardContent>
-      </Card>
+
+          <div style={{ borderTop: "1px solid var(--border)", marginTop: 20, paddingTop: 16, textAlign: "center" }}>
+            <button
+              onClick={() => setIsSignUp(!isSignUp)}
+              style={{
+                fontSize: 13,
+                color: "var(--text-subtle)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-subtle)")}
+            >
+              {isSignUp ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться"}
+            </button>
+          </div>
+        </div>
+
+        <p style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: "var(--text-subtle)" }}>
+          Потоковое планирование · Flow OS
+        </p>
+      </div>
     </div>
   );
 }

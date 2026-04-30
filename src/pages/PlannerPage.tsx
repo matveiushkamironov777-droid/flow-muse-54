@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { ENERGY_LABELS } from "@/lib/constants";
-import { CalendarClock, Plus } from "lucide-react";
+import { CalendarClock, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { EnergyBadge } from "@/components/EnergyBadge";
 import { toast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
@@ -13,18 +12,29 @@ type Cluster = Tables<"clusters">;
 type Container = Tables<"containers">;
 type Task = Tables<"tasks">;
 
+function dateOffset(base: string, days: number): string {
+  const d = new Date(base);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split("T")[0];
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" });
+}
+
 export default function PlannerPage() {
   const { user } = useAuth();
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [containers, setContainers] = useState<Container[]>([]);
   const [readyTasks, setReadyTasks] = useState<Task[]>([]);
-  const today = new Date().toISOString().split("T")[0];
+  const todayBase = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState(todayBase);
 
   const fetchData = async () => {
     if (!user) return;
     const [cl, co, tk] = await Promise.all([
       supabase.from("clusters").select("*").eq("user_id", user.id).order("sort_order"),
-      supabase.from("containers").select("*").eq("user_id", user.id).eq("date", today).order("start_time"),
+      supabase.from("containers").select("*").eq("user_id", user.id).eq("date", selectedDate).order("start_time"),
       supabase.from("tasks").select("*").eq("user_id", user.id).eq("kanban_status", "ready").order("sort_order"),
     ]);
     setClusters(cl.data ?? []);
@@ -32,13 +42,13 @@ export default function PlannerPage() {
     setReadyTasks(tk.data ?? []);
   };
 
-  useEffect(() => { fetchData(); }, [user]);
+  useEffect(() => { fetchData(); }, [user, selectedDate]);
 
   const addContainer = async (cluster: Cluster) => {
     if (!user) return;
     await supabase.from("containers").insert({
       user_id: user.id,
-      date: today,
+      date: selectedDate,
       start_time: cluster.start_time,
       cluster_id: cluster.id,
     });
@@ -52,104 +62,277 @@ export default function PlannerPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2"><CalendarClock className="h-6 w-6" /> Планер дня</h1>
-        <p className="text-muted-foreground">Контейнеры 45/15 по кластерам энергии</p>
+    <div style={{ maxWidth: 1100 }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
+        <div>
+          <h1
+            style={{
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: "-0.015em",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              margin: "0 0 4px",
+            }}
+          >
+            <CalendarClock style={{ width: 20, height: 20 }} /> Планер дня
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontSize: 13.5, margin: 0 }}>
+            Контейнеры 45/15 по кластерам энергии · {formatDate(selectedDate)}
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setSelectedDate((d) => dateOffset(d, -1))}
+          >
+            <ChevronLeft className="h-3 w-3 mr-1" /> Вчера
+          </Button>
+          <Button
+            size="sm"
+            variant={selectedDate === todayBase ? "default" : "outline"}
+            onClick={() => setSelectedDate(todayBase)}
+          >
+            Сегодня
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setSelectedDate((d) => dateOffset(d, 1))}
+          >
+            Завтра <ChevronRight className="h-3 w-3 ml-1" />
+          </Button>
+          <Button size="sm" onClick={() => clusters[0] && addContainer(clusters[0])}>
+            <Plus className="h-3 w-3 mr-1" /> Контейнер
+          </Button>
+        </div>
       </div>
 
-      {/* Energy map */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Карта энергии</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {clusters.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Нет кластеров. Настройте в «Настройках».</p>
-          ) : (
-            <div className="flex gap-1 h-8 rounded-md overflow-hidden">
-              {clusters.map((c) => {
-                const colorMap: Record<string, string> = {
-                  physical: "bg-energy-physical",
-                  mental: "bg-energy-mental",
-                  emotional: "bg-energy-emotional",
-                  spiritual: "bg-energy-spiritual",
-                  recovery: "bg-energy-recovery",
-                };
-                return (
-                  <div key={c.id} className={`flex-1 ${colorMap[c.energy_type]} flex items-center justify-center`} title={`${c.label}: ${c.start_time}-${c.end_time}`}>
-                    <span className="text-xs text-white font-medium truncate px-1">{c.start_time.slice(0, 5)}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Energy map strip */}
+      {clusters.length > 0 && (
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--r-lg)",
+            boxShadow: "var(--shadow-sm)",
+            padding: "14px 14px 12px",
+            marginBottom: 16,
+          }}
+        >
+          <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+            Карта энергии
+            <span style={{ fontSize: 12, color: "var(--text-subtle)", fontWeight: 400 }}>Среднесуточная нагрузка по типам</span>
+          </div>
+          <div style={{ display: "flex", height: 28, borderRadius: "var(--r-sm)", overflow: "hidden", border: "1px solid var(--border)" }}>
+            {clusters.map((c) => {
+              const [sh, sm] = c.start_time.split(":").map(Number);
+              const [eh, em] = c.end_time.split(":").map(Number);
+              const dur = (eh * 60 + em) - (sh * 60 + sm);
+              return (
+                <div
+                  key={c.id}
+                  style={{
+                    flex: dur,
+                    background: `var(--energy-${c.energy_type})`,
+                    opacity: 0.85,
+                    display: "flex",
+                    alignItems: "center",
+                    paddingLeft: 8,
+                    color: "white",
+                    fontSize: 10,
+                    fontFamily: "var(--font-mono)",
+                    letterSpacing: "-0.02em",
+                    minWidth: 0,
+                  }}
+                  title={`${c.label}: ${c.start_time}–${c.end_time}`}
+                >
+                  {c.start_time.slice(0, 5)}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-      {/* Timeline */}
-      <div className="space-y-3">
-        {clusters.map((cluster) => {
-          const clusterContainers = containers.filter((c) => c.cluster_id === cluster.id);
-          return (
-            <Card key={cluster.id}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm flex items-center gap-2">
+      {/* Two-column layout */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 14, alignItems: "flex-start" }}>
+        {/* Clusters timeline (left) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {clusters.map((cluster) => {
+            const clusterContainers = containers.filter((c) => c.cluster_id === cluster.id);
+            return (
+              <div
+                key={cluster.id}
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  borderLeft: `3px solid var(--energy-${cluster.energy_type})`,
+                  borderRadius: "var(--r-lg)",
+                  boxShadow: "var(--shadow-sm)",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    padding: "12px 14px 6px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, fontWeight: 600 }}>
                     <EnergyBadge type={cluster.energy_type} />
-                    {cluster.label}
-                    <span className="text-xs text-muted-foreground">{cluster.start_time.slice(0,5)}–{cluster.end_time.slice(0,5)}</span>
-                  </CardTitle>
-                  <Button size="sm" variant="outline" onClick={() => addContainer(cluster)}>
+                    <span>{cluster.label}</span>
+                    <span style={{ fontSize: 12, color: "var(--text-subtle)", fontWeight: 400, fontFamily: "var(--font-mono)" }}>
+                      {cluster.start_time.slice(0, 5)}–{cluster.end_time.slice(0, 5)}
+                    </span>
+                  </div>
+                  <Button size="sm" variant="ghost" onClick={() => addContainer(cluster)}>
                     <Plus className="h-3 w-3 mr-1" /> Контейнер
                   </Button>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {clusterContainers.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">Нет контейнеров</p>
-                ) : (
-                  <div className="space-y-2">
-                    {clusterContainers.map((co) => (
-                      <div key={co.id} className={`flex items-center justify-between p-2 rounded-md border ${co.status === "done" ? "bg-energy-recovery/10 border-energy-recovery/30" : "bg-muted/30"}`}>
-                        <div className="text-sm">
-                          <span className="font-medium">{co.start_time.slice(0, 5)}</span>
-                          <span className="text-xs text-muted-foreground ml-2">45м работа + 15м отдых</span>
+                <div style={{ padding: "6px 14px 14px" }}>
+                  {clusterContainers.length === 0 ? (
+                    <p style={{ fontSize: 12.5, color: "var(--text-subtle)", fontStyle: "italic", margin: 0 }}>Нет контейнеров</p>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {clusterContainers.map((co) => (
+                        <div
+                          key={co.id}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 12,
+                            padding: "10px 12px",
+                            borderRadius: "var(--r-md)",
+                            background: co.status === "done" ? "var(--energy-recovery-soft)" : "var(--surface-2)",
+                            border: `1px solid ${co.status === "done" ? "var(--energy-recovery)" : "var(--border)"}`,
+                          }}
+                        >
+                          <div style={{ width: 52, textAlign: "center", flexShrink: 0 }}>
+                            <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 600 }}>
+                              {co.start_time.slice(0, 5)}
+                            </div>
+                            <div style={{ fontSize: 10.5, color: "var(--text-subtle)" }}>45 + 15</div>
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <span style={{ fontSize: 13, color: "var(--text-muted)", fontStyle: "italic" }}>
+                              Свободный контейнер
+                            </span>
+                          </div>
+                          {co.status === "done" ? (
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                padding: "2px 8px",
+                                borderRadius: 999,
+                                fontSize: 11,
+                                fontWeight: 500,
+                                background: "var(--energy-recovery-soft)",
+                                color: "var(--success)",
+                              }}
+                            >
+                              ✓ готово
+                            </span>
+                          ) : (
+                            <Button size="sm" variant="ghost" onClick={() => markDone(co.id)}>
+                              ✓ Готово
+                            </Button>
+                          )}
                         </div>
-                        {co.status !== "done" && (
-                          <Button size="sm" variant="ghost" onClick={() => markDone(co.id)}>✓ Готово</Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Ready tasks */}
-      {readyTasks.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Задачи для планирования</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {readyTasks.map((t) => (
-                <div key={t.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-                  <span className="text-sm">{t.title}</span>
-                  <div className="flex items-center gap-2">
-                    {t.duration_estimate && <span className="text-xs text-muted-foreground">{t.duration_estimate}м</span>}
-                    <EnergyBadge type={t.energy_type} />
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              ))}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Ready tasks rail (right, sticky) */}
+        <div style={{ position: "sticky", top: 14 }}>
+          <div
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--r-lg)",
+              boxShadow: "var(--shadow-sm)",
+            }}
+          >
+            <div
+              style={{
+                padding: "12px 14px 6px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <span style={{ fontSize: 13.5, fontWeight: 600 }}>Готовые задачи</span>
+              <span
+                style={{
+                  fontSize: 11,
+                  color: "var(--text-subtle)",
+                  background: "var(--surface-3)",
+                  padding: "1px 6px",
+                  borderRadius: 999,
+                  fontFamily: "var(--font-mono)",
+                }}
+              >
+                {readyTasks.length}
+              </span>
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <div style={{ padding: "6px 14px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {readyTasks.length === 0 ? (
+                <p style={{ fontSize: 12.5, color: "var(--text-subtle)", fontStyle: "italic", margin: 0 }}>
+                  Нет задач для планирования
+                </p>
+              ) : (
+                readyTasks.map((t) => (
+                  <div
+                    key={t.id}
+                    style={{
+                      padding: "8px 10px",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--r-md)",
+                      background: "var(--surface-2)",
+                      cursor: "grab",
+                    }}
+                  >
+                    <div style={{ fontSize: 12.5, fontWeight: 500, marginBottom: 4 }}>{t.title}</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      <EnergyBadge type={t.energy_type} />
+                      {t.duration_estimate && (
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            padding: "2px 7px",
+                            borderRadius: 999,
+                            fontSize: 11,
+                            fontWeight: 500,
+                            background: "var(--surface-3)",
+                            color: "var(--text-muted)",
+                            fontFamily: "var(--font-mono)",
+                          }}
+                        >
+                          {t.duration_estimate}м
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

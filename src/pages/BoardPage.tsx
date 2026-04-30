@@ -6,9 +6,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { EnergyBadge } from "@/components/EnergyBadge";
 import { KANBAN_LABELS, PRIORITY_LABELS } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
-import { Columns3, AlertTriangle } from "lucide-react";
+import { Columns3, AlertTriangle, Pencil } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import type { Database } from "@/integrations/supabase/types";
+import { TaskEditDrawer } from "@/components/TaskEditDrawer";
 
 type Task = Tables<"tasks">;
 type KanbanStatus = Database["public"]["Enums"]["kanban_status"];
@@ -20,6 +21,7 @@ export default function BoardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [wipLimit, setWipLimit] = useState(3);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const fetchData = async () => {
     if (!user) return;
@@ -53,7 +55,7 @@ export default function BoardPage() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2"><Columns3 className="h-6 w-6" /> Канбан</h1>
-        <p className="text-muted-foreground">Перетаскивайте задачи между колонками</p>
+        <p className="text-muted-foreground">Канбан — исполнение. Стратегические цели — в разделе <span className="font-medium">Цели</span>.</p>
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -78,10 +80,19 @@ export default function BoardPage() {
                     key={task.id}
                     draggable
                     onDragStart={() => setDraggedId(task.id)}
-                    className="cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
+                    className="cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow group relative"
                   >
                     <CardContent className="p-3 space-y-2">
-                      <div className="text-sm font-medium">{task.title}</div>
+                      <div className="flex items-start justify-between gap-1">
+                        <div className="text-sm font-medium">{task.title}</div>
+                        <button
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted shrink-0"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={(e) => { e.stopPropagation(); setEditingTask(task); }}
+                        >
+                          <Pencil className="h-3 w-3 text-muted-foreground" />
+                        </button>
+                      </div>
                       <div className="flex flex-wrap gap-1">
                         <EnergyBadge type={task.energy_type} />
                         {task.priority && task.priority !== "medium" && (
@@ -90,9 +101,15 @@ export default function BoardPage() {
                         {task.duration_estimate && (
                           <Badge variant="outline" className="text-xs">{task.duration_estimate}м</Badge>
                         )}
+                        {task.tags && task.tags.length > 0 && task.tags.map((tag) => (
+                          <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+                        ))}
                       </div>
                       {task.deadline && (
                         <div className="text-xs text-muted-foreground">⏰ {task.deadline}</div>
+                      )}
+                      {task.reward && (
+                        <div className="text-xs text-muted-foreground">🏆 {task.reward}</div>
                       )}
                     </CardContent>
                   </Card>
@@ -102,6 +119,13 @@ export default function BoardPage() {
           );
         })}
       </div>
+
+      <TaskEditDrawer
+        task={editingTask}
+        open={!!editingTask}
+        onClose={() => setEditingTask(null)}
+        onSaved={fetchData}
+      />
     </div>
   );
 }

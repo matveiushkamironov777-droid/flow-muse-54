@@ -388,7 +388,10 @@ export type Database = {
           place: string | null
           priority: Database["public"]["Enums"]["task_priority"] | null
           resources: string | null
+          reward: string | null
           sort_order: number
+          start_date: string | null
+          tags: string[] | null
           title: string
           updated_at: string
           user_id: string
@@ -412,7 +415,10 @@ export type Database = {
           place?: string | null
           priority?: Database["public"]["Enums"]["task_priority"] | null
           resources?: string | null
+          reward?: string | null
           sort_order?: number
+          start_date?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string
           user_id: string
@@ -436,7 +442,10 @@ export type Database = {
           place?: string | null
           priority?: Database["public"]["Enums"]["task_priority"] | null
           resources?: string | null
+          reward?: string | null
           sort_order?: number
+          start_date?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string
           user_id?: string

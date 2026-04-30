@@ -88,7 +88,7 @@ export default function GoalsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2"><Target className="h-6 w-6" /> Цели</h1>
-          <p className="text-muted-foreground">Декомпозиция целей на вехи и задачи</p>
+          <p className="text-muted-foreground">Цели — стратегия. Задачи исполняются через <span className="font-medium">Канбан</span>.</p>
         </div>
         <Button onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-1" /> Новая цель</Button>
       </div>
@@ -125,15 +125,26 @@ export default function GoalsPage() {
                     </div>
                   )}
                   {ms.length > 0 && (
-                    <div className="space-y-2 pl-4 border-l-2 border-muted">
+                    <div className="space-y-3 pl-4 border-l-2 border-muted">
                       {ms.map((m) => {
                         const mTasks = milestoneTasks(m.id);
                         return (
-                          <div key={m.id}>
+                          <div key={m.id} className="space-y-1">
                             <div className="flex items-center gap-2">
                               <span className={`text-sm ${m.status === "done" ? "line-through text-muted-foreground" : "font-medium"}`}>{m.title}</span>
                               {mTasks.length > 0 && <span className="text-xs text-muted-foreground">({mTasks.length} задач)</span>}
                             </div>
+                            {mTasks.length > 0 && (
+                              <div className="pl-3 space-y-0.5">
+                                {mTasks.map((t) => (
+                                  <div key={t.id} className="flex items-center gap-1.5">
+                                    <span className={`text-xs ${t.kanban_status === "done" ? "text-muted-foreground line-through" : "text-muted-foreground"}`}>
+                                      {t.kanban_status === "done" ? "✓" : "•"} {t.title}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
