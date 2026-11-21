@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
+import { InstallAppButton } from "@/components/InstallAppButton";
 
 export default function Auth() {
   const { signIn, signUp } = useAuth();
@@ -16,13 +17,13 @@ export default function Auth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = isSignUp
+    const result = isSignUp
       ? await signUp(email, password, displayName)
       : await signIn(email, password);
     setLoading(false);
-    if (error) {
-      toast({ title: "Ошибка", description: error.message, variant: "destructive" });
-    } else if (isSignUp) {
+    if (result.error) {
+      toast({ title: "Ошибка", description: result.error.message, variant: "destructive" });
+    } else if ("session" in result && !result.session) {
       toast({ title: "Проверьте почту для подтверждения регистрации" });
     }
   };
@@ -141,9 +142,10 @@ export default function Auth() {
           </div>
         </div>
 
-        <p style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: "var(--text-subtle)" }}>
-          Потоковое планирование · Flow OS
-        </p>
+        <div className="mt-5 flex items-center justify-center gap-2">
+          <p className="text-xs text-muted-foreground">Потоковое планирование · Flow OS</p>
+          <InstallAppButton />
+        </div>
       </div>
     </div>
   );

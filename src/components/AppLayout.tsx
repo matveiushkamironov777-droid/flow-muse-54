@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { QuickAddDialog } from "@/components/QuickAddDialog";
+import { InstallAppButton } from "@/components/InstallAppButton";
 import { Search, Bell, HelpCircle } from "lucide-react";
 import { useFirstRun } from "@/hooks/useFirstRun";
 
@@ -48,23 +49,24 @@ export function AppLayout() {
         <div className="flex-1 flex flex-col min-w-0">
           {/* Topbar */}
           <header
-            className="h-14 flex items-center justify-between shrink-0 px-5"
+            className="h-14 flex items-center justify-between shrink-0 px-3 sm:px-5"
             style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
           >
             {/* Left: trigger + breadcrumbs */}
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
               <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
               <div className="flex items-center gap-1.5 text-[13px]">
-                <span style={{ color: "var(--text-subtle)" }}>Flow Planning</span>
-                <span style={{ color: "var(--text-subtle)" }}>/</span>
+                <span className="hidden sm:inline" style={{ color: "var(--text-subtle)" }}>Flow Planning</span>
+                <span className="hidden sm:inline" style={{ color: "var(--text-subtle)" }}>/</span>
                 <span className="font-semibold text-foreground">{pageLabel}</span>
               </div>
             </div>
 
             {/* Right: search + icons */}
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
+              <InstallAppButton compact />
               <div
-                className="flex items-center gap-2 rounded-[var(--r-md)] px-3 h-8 text-[13px]"
+                className="hidden lg:flex items-center gap-2 rounded-[var(--r-md)] px-3 h-8 text-[13px]"
                 style={{
                   width: 240,
                   background: "var(--surface-2)",
@@ -97,7 +99,7 @@ export function AppLayout() {
           </header>
 
           {/* Main content */}
-          <main className="flex-1 overflow-auto" style={{ padding: "28px 28px 64px" }}>
+          <main className="flex-1 overflow-auto px-4 pt-5 pb-16 sm:px-7 sm:pt-7">
             <Outlet />
           </main>
         </div>

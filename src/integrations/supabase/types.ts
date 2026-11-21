@@ -216,6 +216,45 @@ export type Database = {
         }
         Relationships: []
       }
+      kanban_column_labels: {
+        Row: {
+          status: Database["public"]["Enums"]["kanban_status"]
+          title: string
+          user_id: string
+        }
+        Insert: {
+          status: Database["public"]["Enums"]["kanban_status"]
+          title: string
+          user_id: string
+        }
+        Update: {
+          status?: Database["public"]["Enums"]["kanban_status"]
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      kanban_columns: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       learning_notes: {
         Row: {
           created_at: string
@@ -380,6 +419,7 @@ export type Database = {
           happiness_component: string | null
           has_resources: boolean | null
           id: string
+          kanban_column_id: string | null
           kanban_status: Database["public"]["Enums"]["kanban_status"]
           milestone_id: string | null
           mission_aligned: boolean | null
@@ -407,6 +447,7 @@ export type Database = {
           happiness_component?: string | null
           has_resources?: boolean | null
           id?: string
+          kanban_column_id?: string | null
           kanban_status?: Database["public"]["Enums"]["kanban_status"]
           milestone_id?: string | null
           mission_aligned?: boolean | null
@@ -434,6 +475,7 @@ export type Database = {
           happiness_component?: string | null
           has_resources?: boolean | null
           id?: string
+          kanban_column_id?: string | null
           kanban_status?: Database["public"]["Enums"]["kanban_status"]
           milestone_id?: string | null
           mission_aligned?: boolean | null
@@ -457,6 +499,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "containers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_kanban_column_fkey"
+            columns: ["user_id", "kanban_column_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_columns"
+            referencedColumns: ["user_id", "id"]
           },
           {
             foreignKeyName: "tasks_milestone_id_fkey"

@@ -1,0 +1,16 @@
+{
+  "id": "/",
+  "name": "Flow Planning",
+  "short_name": "Flow Planning",
+  "description": "Потоковое планирование задач, целей и привычек",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f9fafc",
+  "theme_color": "#f9fafc",
+  "icons": [
+    { "src": "/icons/flow-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/flow-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
