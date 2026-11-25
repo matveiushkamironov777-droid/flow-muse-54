@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/AppLayout";
-import Auth from "./pages/Auth";
+import Auth, { PasswordReset } from "./pages/Auth";
+import { passwordRecoveryEnabled } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import InboxPage from "./pages/InboxPage";
 import BoardPage from "./pages/BoardPage";
@@ -44,6 +45,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<AuthRoute />} />
+            {passwordRecoveryEnabled && <Route path="/auth/reset-password" element={<PasswordReset />} />}
             <Route element={<ProtectedRoutes />}>
               <Route path="/" element={<Index />} />
               <Route path="/inbox" element={<InboxPage />} />
